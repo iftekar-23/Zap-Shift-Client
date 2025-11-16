@@ -5,6 +5,8 @@ import OurServices from '../OurServices/OurServices';
 import Brands from '../Brands/Brands';
 import Reviews from '../../Reviews/Reviews';
 import Features from '../../../components/Features';
+import FAQ from '../../../components/FAQ';
+import CourierSection from '../../../components/CourierSection';
 
 
 const reviewsPromise = fetch('/reviews.json').then(res => res.json());
@@ -25,10 +27,13 @@ const Home = () => {
             <section>
                 <Features></Features>
             </section>
+            <section><CourierSection></CourierSection></section>
             <section>
                 <Reviews reviewsPromise={reviewsPromise}></Reviews>
             </section>
-            
+            <section>
+                <FAQ></FAQ>
+            </section>
         </div>
     );
 };
