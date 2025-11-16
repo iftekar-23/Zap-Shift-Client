@@ -16,7 +16,7 @@ const Coverage = () => {
 
         if (district) {
             const coord = [district.latitude, district.longitude];
-            mapRef.current.flyTo(coord, 14);
+            mapRef.current.flyTo(coord, 12);
         }
     }
 
