@@ -2,18 +2,53 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../hooks/useAuth';
 import Social from './Social';
-import { Link } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import axios from 'axios';
 
 const Register = () => {
 
-
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { registerUser } = useAuth();
+    const { registerUser,updateUserProfile } = useAuth();
+
+    const location = useLocation()
+    const navigate = useNavigate()
 
     const handleRegistration = (data) => {
+
+        console.log('after register', data.photo[0]);
+        const profileImg = data.photo[0];
+
         console.log(data)
-        registerUser(data.email, data.password).then(res => console.log(res.user))
-            .then(err => console.log(err))
+        registerUser(data.email, data.password)
+        .then(res => {
+            console.log(res.user)
+
+            // 1. store the image in form data
+                const formData = new FormData();
+                formData.append('image', profileImg);
+
+            const image_API_URL = `https://api.imgbb.com/1/upload?expiration=600&key=${import.meta.env.VITE_image_host_Key}`
+
+           axios.post(image_API_URL, formData)
+                    .then(res => {
+                        console.log('after image upload', res.data.data.url)
+
+                        // update user profile to firebase
+                        const userProfile = {
+                            displayName: data.name,
+                            photoURL: res.data.data.url
+                        }
+
+                        updateUserProfile(userProfile)
+                            .then(() => {
+                                console.log('user profile updated done.')
+                                navigate(location.state || '/');
+                            })
+                            .catch(error => console.log(error))
+                    })
+
+        })
+        .then(err => console.log(err))
     }
 
     return (
@@ -26,6 +61,22 @@ const Register = () => {
             {/* Form */}
             <div className="card bg-base-100 w-full shadow-none p-0">
                 <form onSubmit={handleSubmit(handleRegistration)} className="space-y-3">
+
+                    {/* name */}
+                    <label className="label">Name</label> <br />
+                    <input
+                        type="text"
+                        {...register('name', { required: true })}
+                        className="input input-bordered"
+                        placeholder="Your name"
+                    /> <br />
+                    <label className="label">Photo</label> <br />
+                    <input
+                        type="file"
+                        {...register('photo', { required: true })}
+                        className="file-input"
+                        placeholder="Your photo"
+                    /> <br />
 
                     {/* Email */}
                     <label className="label">Email</label> <br />
@@ -72,7 +123,7 @@ const Register = () => {
             {/* Register */}
             <p className="mt-3 text-sm">
                 Already have an account?{" "}
-                <Link to="/login" className="text-primary font-semibold">Login</Link>
+                <Link state={location.state} to="/login" className="text-primary font-semibold">Login</Link>
             </p>
 
             {/* Divider */}
