@@ -8,44 +8,50 @@ import Register from "../pages/Auth/Register";
 import PrivateRoute from '../routes/PrivateRoute'
 import Rider from "../pages/Rider/Rider";
 import AboutPage from "../pages/AboutPage/AboutPage";
+import NotFound from "../pages/Shared/NotFound";
 
 
 export const router = createBrowserRouter([
     {
-        path:'/',
+        path: '/',
         element: <RootLayout></RootLayout>,
-        children:[
+        children: [
             {
-                index:true,
-                element:<Home></Home>
+                index: true,
+                element: <Home></Home>
             },
             {
-                path:'/about',
-                element:<AboutPage></AboutPage>
+                path: '/about',
+                element: <AboutPage></AboutPage>
             },
             {
-                path:'/rider',
+                path: '/rider',
                 element: <PrivateRoute><Rider></Rider></PrivateRoute>
             },
             {
-                path:'coverage',
+                path: 'coverage',
                 element: <Coverage></Coverage>,
                 loader: () => fetch('/serviceCenters.json').then(res => res.json())
+            },
+            {
+                path: '*',
+                element: <NotFound></NotFound>
             }
         ]
     },
     {
-        path:'/',
-        element:<AuthLayout></AuthLayout>,
-        children:[
+        path: '/',
+        element: <AuthLayout></AuthLayout>,
+        children: [
             {
-                path:'/login',
-                element:<Login></Login>
+                path: '/login',
+                element: <Login></Login>
             },
             {
-                path:'/register',
-                element:<Register></Register>
+                path: '/register',
+                element: <Register></Register>
             }
         ]
-    }
+    },
+
 ])
