@@ -1,12 +1,44 @@
 import React from "react";
-import riderImg from "../../assets/agent-pending.png"; 
-import { useForm } from "react-hook-form";
+import riderImg from "../../assets/agent-pending.png";
+import { useForm, useWatch } from "react-hook-form";
+import { useLoaderData } from "react-router";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const Rider = () => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
+  const serviceCenters = useLoaderData();
+  const axiosSecure = useAxiosSecure();
+
+  const regionsDuplicate = serviceCenters.map(c => c.region);
+  const regions = [...new Set(regionsDuplicate)];
+
+  const districtsByRegion = (region) => {
+    const regionDistricts = serviceCenters.filter(c => c.region === region);
+    const districts = regionDistricts.map(d => d.district);
+    return [...new Set(districts)]; // Remove duplicates
+  };
+
+  const riderRegion = useWatch({ control, name: 'region' });
+
+
 
   const onSubmit = (data) => {
     console.log("Rider Data:", data);
+
+    axiosSecure.post('/riders', data)
+      .then(res => {
+        if (res.data.insertedId) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Your application has been submitted. We will reach to you in 145 days",
+            showConfirmButton: false,
+            timer: 2000
+          });
+        }
+      })
+
     reset();
   };
 
@@ -71,15 +103,17 @@ const Rider = () => {
                 />
               </div>
 
+              {/* Region Field */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Your Region</label>
-                <select {...register("region")} className="select select-bordered w-full mt-1">
+                <select
+                  {...register("region")}
+                  className="select select-bordered w-full mt-1"
+                >
                   <option value="">Select your region</option>
-                  <option value="Dhaka">Dhaka</option>
-                  <option value="Chattogram">Chattogram</option>
-                  <option value="Sylhet">Sylhet</option>
-                  <option value="Rajshahi">Rajshahi</option>
-                  <option value="Khulna">Khulna</option>
+                  {regions.map((region, i) => (
+                    <option key={i} value={region}>{region}</option>
+                  ))}
                 </select>
               </div>
 
@@ -104,17 +138,16 @@ const Rider = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Which ware-house you want to work?
-                </label>
+                <label className="text-sm font-medium text-gray-700">Your District</label>
                 <select
-                  {...register("warehouse")}
+                  {...register("district")}
                   className="select select-bordered w-full mt-1"
+                  defaultValue=""
                 >
-                  <option value="">Select ware-house</option>
-                  <option value="Dhaka Hub">Dhaka Hub</option>
-                  <option value="CTG Hub">CTG Hub</option>
-                  <option value="Sylhet Hub">Sylhet Hub</option>
+                  <option value="">Select district (pick region first)</option>
+                  {riderRegion && districtsByRegion(riderRegion).map((district, i) => (
+                    <option key={i} value={district}>{district}</option>
+                  ))}
                 </select>
               </div>
             </div>

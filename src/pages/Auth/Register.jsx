@@ -4,14 +4,16 @@ import useAuth from '../../hooks/useAuth';
 import Social from './Social';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import axios from 'axios';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 
 const Register = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { registerUser,updateUserProfile } = useAuth();
+    const { registerUser, updateUserProfile } = useAuth();
 
     const location = useLocation()
     const navigate = useNavigate()
+    const axiosSecure = useAxiosSecure();
 
     const handleRegistration = (data) => {
 
@@ -20,18 +22,30 @@ const Register = () => {
 
         console.log(data)
         registerUser(data.email, data.password)
-        .then(res => {
-            console.log(res.user)
+            .then(res => {
+                console.log(res.user)
 
-            // 1. store the image in form data
+                // 1. store the image in form data
                 const formData = new FormData();
                 formData.append('image', profileImg);
 
-            const image_API_URL = `https://api.imgbb.com/1/upload?expiration=600&key=${import.meta.env.VITE_image_host_Key}`
+                const image_API_URL = `https://api.imgbb.com/1/upload?expiration=600&key=${import.meta.env.VITE_image_host_Key}`
 
-           axios.post(image_API_URL, formData)
+                axios.post(image_API_URL, formData)
                     .then(res => {
-                        console.log('after image upload', res.data.data.url)
+                        const photoURL = res.data.data.url;
+                        // create user in database
+                        const userInfo = {
+                            email: data.email,
+                            displayName: data.name,
+                            photoURL: photoURL
+                        }
+                        axiosSecure.post('/users', userInfo)
+                            .then(res => {
+                                if (res.data.insertedId) {
+                                    console.log('user created in the database');
+                                }
+                            })
 
                         // update user profile to firebase
                         const userProfile = {
@@ -47,8 +61,8 @@ const Register = () => {
                             .catch(error => console.log(error))
                     })
 
-        })
-        .then(err => console.log(err))
+            })
+            .then(err => console.log(err))
     }
 
     return (

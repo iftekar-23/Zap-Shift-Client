@@ -17,8 +17,16 @@ const NavBar = () => {
         <>
             <li><NavLink to="">Services</NavLink></li>
             <li><NavLink to="about">About Us</NavLink></li>
+            <li><NavLink to="send-parcel">Send Parcel</NavLink></li>
             <li><NavLink to="/coverage">Coverage</NavLink></li>
             <li><NavLink to="/rider">Be a Rider</NavLink></li>
+
+            {
+                user && <>
+                    <li><NavLink to="/dashboard/my-parcels">My Parcels</NavLink></li>
+                </>
+            }
+
             {/* Mobile Auth Buttons */}
             <div className="lg:hidden mt-2 flex flex-col gap-2">
                 {user ? (
@@ -50,9 +58,9 @@ const NavBar = () => {
                     </ul>
                 </div>
 
-                <Link to="/" className="btn btn-ghost text-xl">
+                <span to="/" className="btn btn-ghost text-xl">
                     <Logo />
-                </Link>
+                </span>
             </div>
 
             {/* Center Section */}
