@@ -22,6 +22,8 @@ import AssignRiders from "../pages/Dashboard/AssignRiders/AssignRiders";
 import AdminRoute from "./AdminRoute";
 import RiderRoute from "./RiderRoute";
 import AssignedDeliveries from "../pages/Dashboard/AssignedDeliveries/AssignedDeliveries";
+import CompletedDeliveries from "../pages/Dashboard/CompletedDeliveries/CompletedDeliveries";
+import ParcelTrack from "../pages/ParcelTrack/ParcelTrack";
 
 
 export const router = createBrowserRouter([
@@ -55,6 +57,10 @@ export const router = createBrowserRouter([
             {
                 path: '*',
                 element: <NotFound></NotFound>
+            },
+            {
+                path: 'parcel-track/:trackingId',
+                Component: ParcelTrack
             }
         ]
     },
@@ -102,7 +108,11 @@ export const router = createBrowserRouter([
                 path: 'assigned-deliveries',
                 element: <RiderRoute><AssignedDeliveries></AssignedDeliveries></RiderRoute>
             },
-            
+            {
+                path: 'completed-deliveries',
+                element: <RiderRoute><CompletedDeliveries></CompletedDeliveries></RiderRoute>
+            },
+
 
 
             // admin only routes
